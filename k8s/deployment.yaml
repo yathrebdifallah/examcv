@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cv-onepage
+  labels:
+    app: cv-onepage
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cv-onepage
+  template:
+    metadata:
+      labels:
+        app: cv-onepage
+    spec:
+      containers:
+      - name: cv-onepage
+        image: yathrebdifallah233/cv-onepage:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "250m"
+            memory: "256Mi"

@@ -1,0 +1,34 @@
+---
+- name: Download Jenkins GPG key
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+    dest: /usr/share/keyrings/jenkins-keyring.gpg
+    mode: '0644'
+
+- name: Add Jenkins repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.gpg] https://pkg.jenkins.io/debian-stable binary/"
+    state: present
+    filename: jenkins.list
+
+- name: Install Java (required) and Jenkins
+  apt:
+    name: ['openjdk-17-jdk','jenkins']
+    state: latest
+    update_cache: yes
+
+- name: Ensure Jenkins started and enabled
+  service:
+    name: jenkins
+    state: started
+    enabled: true
+
+# (optionnel) wait for Jenkins to be available
+- name: Wait for Jenkins HTTP
+  uri:
+    url: http://localhost:8080/login
+    status_code: 200
+  register: jenkins_status
+  retries: 10
+  delay: 6
+  until: jenkins_status.status == 200
